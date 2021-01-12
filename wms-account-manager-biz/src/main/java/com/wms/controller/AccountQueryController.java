@@ -87,4 +87,20 @@ public class AccountQueryController extends BaseController
         return ApiResult.ok(queryVo);
     }
 
+    /**
+     * 查询相同批次属性的台账
+     */
+    @PostMapping("/queryByAccountCode")
+    @ApiOperation(value = "根据台账编号查询台账", notes = "根据台账编号查询台账", response = AccountVo.class)
+    public ApiResult<AccountVo> querySameAccountByBatchAttributes(@RequestParam String accountCode) throws Exception
+    {
+        AccountBo accountBo = accountService.queryAccountByCode(accountCode);
+        AccountVo queryVo = null;
+        if (accountBo != null)
+        {
+            queryVo = new AccountVo();
+            BeanUtils.copyProperties(accountBo , queryVo);
+        }
+        return ApiResult.ok(queryVo);
+    }
 }

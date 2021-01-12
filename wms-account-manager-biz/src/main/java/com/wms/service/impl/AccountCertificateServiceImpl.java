@@ -31,43 +31,57 @@ import java.io.Serializable;
  */
 @Slf4j
 @Service
-public class AccountCertificateServiceImpl extends BaseServiceImpl<AccountCertificateMapper, AccountCertificateEntity> implements AccountCertificateService {
+public class AccountCertificateServiceImpl extends BaseServiceImpl<AccountCertificateMapper, AccountCertificateEntity> implements AccountCertificateService
+{
 
     @Autowired
     private AccountCertificateMapper accountCertificateMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean saveAccountCertificate(AccountCertificateBo accountCertificate) {
+    public boolean saveAccountCertificate(AccountCertificateBo accountCertificate)
+    {
         AccountCertificateEntity entity = new AccountCertificateEntity();
-        BeanUtils.copyProperties(accountCertificate , entity);
+        BeanUtils.copyProperties(accountCertificate, entity);
         return super.save(entity);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateAccountCertificate(AccountCertificateBo accountCertificate) {
+    public boolean updateAccountCertificate(AccountCertificateBo accountCertificate)
+    {
         AccountCertificateEntity entity = new AccountCertificateEntity();
-        BeanUtils.copyProperties(accountCertificate , entity);
+        BeanUtils.copyProperties(accountCertificate, entity);
         return super.updateById(entity);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean deleteAccountCertificate(Long id) {
+    public boolean deleteAccountCertificate(Long id)
+    {
         return super.removeById(id);
     }
 
     @Override
-    public AccountCertificateBo getAccountCertificateById(Serializable id) {
+    public AccountCertificateBo getAccountCertificateById(Serializable id)
+    {
         return accountCertificateMapper.getAccountCertificateById(id);
     }
 
     @Override
-    public Paging<AccountCertificateBo> getAccountCertificatePageList(AccountCertificateQueryParam accountCertificateQueryParam) {
+    public Paging<AccountCertificateBo> getAccountCertificatePageList(AccountCertificateQueryParam accountCertificateQueryParam)
+    {
         Page page = setPageParam(accountCertificateQueryParam, OrderItem.desc(CoreConstant.CREATED_DATE));
         IPage<AccountCertificateBo> iPage = accountCertificateMapper.getAccountCertificatePageList(page, accountCertificateQueryParam);
         return new Paging(iPage);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public int rebackAccount(AccountCertificateBo accountCertificateBo)
+    {
+        String workCode = accountCertificateBo.getWorkCode();
+        return 0;
     }
 
 }

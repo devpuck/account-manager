@@ -7,6 +7,7 @@ import com.wms.db.query.ExcludeNullQueryWrapper;
 import com.wms.model.bo.account.AccountCertificateBo;
 import com.wms.service.AccountCertificateService;
 import com.wms.util.tools.InStorageAccountTools;
+import com.wms.util.tools.OutStorageAccountTools;
 import com.xac.core.constant.CoreConstant;
 import com.wms.model.entity.AccountEntity;
 import com.wms.mapper.account.AccountMapper;
@@ -84,7 +85,7 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
             accountBo.setAccountCode(accountCode);
 
             //创建新的台账，创建凭证
-            result = createAccountCertificate(accountCertificateBo,accountBo);
+            result = createInAccountCertificate(accountCertificateBo,accountBo);
             if(!result)
             {
                 accountResult.setSuccess(false);
@@ -99,7 +100,7 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
         {
 
             //合并台账，更新凭证，包含只更新状态。凭证中会带有之前台账信息
-            result= createAccountCertificate(accountCertificateBo,accountBo,sameAccountBo);
+            result= createInAccountCertificate(accountCertificateBo,accountBo,sameAccountBo);
             if(!result)
             {
                 accountResult.setSuccess(false);
@@ -129,7 +130,82 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
         return accountResult;
     }
 
-    public boolean createAccountCertificate(AccountCertificateBo accountCertificateBo,AccountBo accountBo)
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public AccountResult createOutStorageAccount(OutWarehouseAccountVo outWarehouseAccountVo)
+    {
+        boolean result = false;
+        AccountResult accountResult = new AccountResult();
+        String accountCode = outWarehouseAccountVo.getAccountCode();
+        String billCode = outWarehouseAccountVo.getOutWarehouseBillVo().getBillCode();
+        String subBillCode = null;
+        if( null != outWarehouseAccountVo.getOutWarehouseBillSubVo().getId())
+        {
+            subBillCode = outWarehouseAccountVo.getOutWarehouseBillSubVo().getId().toString();
+        }
+
+        AccountBo accountBo = queryAccountByCode(accountCode);
+        if(null == accountBo)
+        {
+            accountResult.setSuccess(false);
+            return accountResult;
+        }
+
+        //判断当前台账是否允许出库
+        BigDecimal accountQuantity = accountBo.getQuantity();
+        BigDecimal outQuantity = outWarehouseAccountVo.getQuantity();
+        BigDecimal tryQuantity = outWarehouseAccountVo.getTryQuantity();
+        if(null != tryQuantity)
+        {
+            outQuantity = outQuantity.add(tryQuantity);
+        }
+
+        //库存数量不足，不允许出库
+        if(0 < (accountQuantity.compareTo(outQuantity)))
+        {
+            accountResult.setSuccess(false);
+            return accountResult;
+        }
+
+        AccountCertificateBo accountCertificateBo = OutStorageAccountTools.copyCertificateVo(outWarehouseAccountVo);
+        if(null == accountCertificateBo)
+        {
+            accountResult.setSuccess(false);
+            return accountResult;
+        }
+
+        result = createOutAccountCertificate(accountCertificateBo,accountBo,outWarehouseAccountVo);
+        if(!result)
+        {
+            accountResult.setSuccess(false);
+            return accountResult;
+        }
+
+        result = outStorage(accountCode,outQuantity);
+        accountResult.setSuccess(result);
+        if(result)
+        {
+            AccountVo accountVo = new AccountVo();
+            BeanUtils.copyProperties(accountBo,accountVo);
+
+            AccountCertificateVo accountCertificateVo = new AccountCertificateVo();
+            BeanUtils.copyProperties(accountCertificateBo,accountCertificateVo);
+
+            List<AccountVo> accountVoList = new ArrayList<AccountVo>();
+            accountVo.setQuantity(accountVo.getQuantity().add(outQuantity));
+            accountVoList.add(accountVo);
+            List<AccountCertificateVo> accountCertificateVoList = new ArrayList<AccountCertificateVo>();
+            accountCertificateVoList.add(accountCertificateVo);
+
+            accountResult.setAccountVoList(accountVoList);
+            accountResult.setAccountCertificateVoList(accountCertificateVoList);
+
+        }
+
+        return accountResult;
+    }
+
+    public boolean createInAccountCertificate(AccountCertificateBo accountCertificateBo, AccountBo accountBo)
     {
 
         accountCertificateBo.setBeforeQuantity(new BigDecimal(0));
@@ -143,7 +219,7 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
         return accountCertificateService.saveAccountCertificate(accountCertificateBo);
     }
 
-    public boolean createAccountCertificate(AccountCertificateBo accountCertificateBo,AccountBo accountBo,AccountBo sameAccountBo)
+    public boolean createInAccountCertificate(AccountCertificateBo accountCertificateBo, AccountBo accountBo, AccountBo sameAccountBo)
     {
 
         accountCertificateBo.setBeforeQuantity(sameAccountBo.getQuantity());
@@ -152,6 +228,22 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
         accountCertificateBo.setEndQualityStatus(accountBo.getQualityStatus());
         accountCertificateBo.setBeforeStatus(sameAccountBo.getStatus());
         accountCertificateBo.setEndStatus(accountBo.getStatus());
+
+        return accountCertificateService.saveAccountCertificate(accountCertificateBo);
+    }
+
+    public boolean createOutAccountCertificate(AccountCertificateBo accountCertificateBo,AccountBo accountBo,OutWarehouseAccountVo outWarehouseAccountVo)
+    {
+
+        BigDecimal endQuantity = accountBo.getQuantity().subtract((outWarehouseAccountVo.getQuantity().add(outWarehouseAccountVo.getTryQuantity())));
+        accountCertificateBo.setBeforeQuantity(accountBo.getQuantity());
+        accountCertificateBo.setEndQuantity(endQuantity);
+
+        accountCertificateBo.setBeforeQualityStatus(accountBo.getQualityStatus());
+        accountCertificateBo.setEndQualityStatus(accountBo.getQualityStatus());
+        accountCertificateBo.setBeforeStatus(accountBo.getStatus());
+        accountCertificateBo.setEndStatus(accountBo.getStatus());
+        accountCertificateBo.setAccountCode(accountBo.getAccountCode());
 
         return accountCertificateService.saveAccountCertificate(accountCertificateBo);
     }
@@ -176,6 +268,20 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
     public AccountBo getAccountById(Serializable id)
     {
         return accountMapper.getAccountById(id);
+    }
+
+    @Override
+    public AccountBo queryAccountByCode(String accountCode)
+    {
+        AccountEntity accountEntity = accountMapper.selectOne(new QueryWrapper<AccountEntity>().lambda()
+                .eq(AccountEntity::getAccountCode,accountCode));
+        if(null != accountEntity)
+        {
+            AccountBo accountBo = new AccountBo();
+            BeanUtils.copyProperties(accountEntity,accountBo);
+            return accountBo;
+        }
+        return null;
     }
 
     @Override
@@ -391,6 +497,11 @@ public class AccountServiceImpl extends BaseServiceImpl<AccountMapper, AccountEn
     public boolean mergeByCode(String accountCode, BigDecimal quantity)
     {
         return accountMapper.inMergeByCode(accountCode,quantity);
+    }
+
+    public boolean outStorage(String accountCode,BigDecimal quantity)
+    {
+        return accountMapper.outStorage(accountCode,quantity);
     }
 
     @Override

@@ -36,7 +36,8 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/account/in")
 @Api("库房台账表 API")
-public class AccountController extends BaseController {
+public class AccountController extends BaseController
+{
 
     @Autowired
     private AccountService accountService;

@@ -125,6 +125,9 @@
     <update id="inMergeByID">
         update WMS_ACCOUNT set QUANTITY = QUANTITY + #{quantity} where ID = #{id}
     </update>
+    <update id="outStorage">
+        update WMS_ACCOUNT set QUANTITY = QUANTITY - #{quantity} where ACCOUNT_CODE = #{code}
+    </update>
 
     <select id="getAccountById" resultMap="BoResultMap">
         select

@@ -361,4 +361,8 @@ public class AccountCertificateEntity
      */
     private Date moveTime;
 
+    /**
+     * 状态
+     */
+    private String status;
 }

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import com.xac.core.vo.BaseVo;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 
 import java.math.BigDecimal;
@@ -21,7 +22,8 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 @ApiModel(value = "AccountCertificateVo对象", description = "库房流水，移动凭证表查询参数")
-public class AccountCertificateVo extends BaseVo implements Serializable {
+public class AccountCertificateVo extends BaseVo implements Serializable
+{
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "表id")
@@ -186,27 +188,27 @@ public class AccountCertificateVo extends BaseVo implements Serializable {
     @ApiModelProperty(value = "货主类型")
     private String productionOwnerType;
 
-private String details;
+    private String details;
 
-private String attribute1;
+    private String attribute1;
 
-private String attribute2;
+    private String attribute2;
 
-private String attribute3;
+    private String attribute3;
 
-private String attribute4;
+    private String attribute4;
 
-private String attribute5;
+    private String attribute5;
 
-private String attribute6;
+    private String attribute6;
 
-private String attribute7;
+    private String attribute7;
 
-private String attribute8;
+    private String attribute8;
 
-private String attribute9;
+    private String attribute9;
 
-private String attribute10;
+    private String attribute10;
 
     @ApiModelProperty(value = "条码")
     private String barCode;
@@ -226,9 +228,12 @@ private String attribute10;
     @ApiModelProperty(value = "物品码")
     private String productionCodeInfo;
 
-private String version;
+    private String version;
 
     @ApiModelProperty(value = "移动时间")
     private Date moveTime;
+
+    @ApiModelProperty(value = "状态")
+    private String status;
 
 }

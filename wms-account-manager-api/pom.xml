@@ -44,5 +44,10 @@
             <artifactId>wms-in-storage-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-out-storage-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

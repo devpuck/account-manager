@@ -52,6 +52,14 @@ public interface AccountMapper extends BaseMapper<AccountEntity> {
     boolean inMergeByCode(String code, BigDecimal quantity);
 
     /**
+     * 出库更新台账
+     * @param code
+     * @param quantity
+     * @return
+     */
+    boolean outStorage(String code,BigDecimal quantity);
+
+    /**
      * 入库根据ID合并台账
      * @param id
      * @param quantity

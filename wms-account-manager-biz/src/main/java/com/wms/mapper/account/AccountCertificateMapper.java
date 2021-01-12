@@ -39,4 +39,12 @@ public interface AccountCertificateMapper extends BaseMapper<AccountCertificateE
      */
     IPage<AccountCertificateBo> getAccountCertificatePageList(@Param("page") Page page, @Param("param") AccountCertificateQueryParam accountCertificateQueryParam);
 
+    /**
+     *
+     * @param id
+     * @param status
+     * @return
+     */
+    public boolean updateAccountCertificateStatus(Long id,String status);
+
 }

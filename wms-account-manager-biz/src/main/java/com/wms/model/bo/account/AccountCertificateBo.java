@@ -3,6 +3,7 @@ package com.wms.model.bo.account;
 import com.xac.core.bo.BaseBo;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 
 import java.math.BigDecimal;
@@ -18,7 +19,8 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-public class AccountCertificateBo extends BaseBo implements Serializable {
+public class AccountCertificateBo extends BaseBo implements Serializable
+{
     private static final long serialVersionUID = 1L;
 
     /**
@@ -349,5 +351,10 @@ public class AccountCertificateBo extends BaseBo implements Serializable {
      * 移动时间
      */
     private Date moveTime;
+
+    /**
+     * 状态
+     */
+    private String status;
 
 }

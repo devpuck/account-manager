@@ -16,7 +16,8 @@ import java.io.Serializable;
  * @author puck
  * @since 2021-01-05
  */
-public interface AccountCertificateService extends BaseService<AccountCertificateEntity> {
+public interface AccountCertificateService extends BaseService<AccountCertificateEntity>
+{
 
     /**
      * 保存
@@ -63,5 +64,11 @@ public interface AccountCertificateService extends BaseService<AccountCertificat
      */
     Paging<AccountCertificateBo> getAccountCertificatePageList(AccountCertificateQueryParam accountCertificateQueryParam);
 
+    /**
+     * 反冲操作
+     * @param accountCertificateBo
+     * @return
+     */
+    public int rebackAccount(AccountCertificateBo accountCertificateBo);
 
 }

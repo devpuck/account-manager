@@ -2,6 +2,7 @@ package com.wms.service;
 
 import com.wms.api.account.AccountResult;
 import com.wms.api.account.InWarehouseAccountVo;
+import com.wms.api.account.OutWarehouseAccountVo;
 import com.wms.api.batch.BatchAttribute;
 import com.wms.model.entity.AccountEntity;
 import com.xac.core.service.BaseService;
@@ -41,6 +42,13 @@ public interface AccountService extends BaseService<AccountEntity>
     AccountResult createInStorageAccount(InWarehouseAccountVo inWarehouseAccountVo);
 
     /**
+     * 出库过账
+     * @param outWarehouseAccountVo
+     * @return
+     */
+    AccountResult createOutStorageAccount(OutWarehouseAccountVo outWarehouseAccountVo);
+
+    /**
      * 修改
      *
      * @param account
@@ -66,6 +74,13 @@ public interface AccountService extends BaseService<AccountEntity>
      * @throws Exception
      */
     AccountBo getAccountById(Serializable id);
+
+    /**
+     * 根据台账编号查询台账
+     * @param accountCode
+     * @return
+     */
+    AccountBo queryAccountByCode(String accountCode);
 
     /**
      * 获取分页对象
